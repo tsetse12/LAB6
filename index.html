@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="style.css">
+   <script type="text/javascript">
+       var words = ["elephant", "dog", "cat", "giraffe", "gorilla", "chimpanzee", "snake", "owl", "horse", "lion", "mouse", "gazelle", "eagle", "wolf", "donkey", "rhinoceros", "penguin", "flamingo", "seagull", "turtle"]; 
+var buttons = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']; // 26 elements
+var mistakes = 6; 
+var mystery;
+var randNum;
+var chosenWord;
+var wordStatus = null;
+
+function handleGuess(str) {
+    tries.indexOf(str) === -1 ? tries.push(str) : null;
+    document.getElementById("display2").value += str + " ";
+    var button = document.getElementById(str);
+    button.style.backgroundColor = "grey";
+    button.disabled = true;
+    
+    if (chosenWord.indexOf(str) >= 0) {
+        updateScore();
+        guessedWord();
+        checkIfGameWon();
+      } else {
+        failed++;
+        updateMistakes();
+        checkIfGameLost();
+    }
+}
+
+function generateWord() { 
+    randNum = Math.floor(Math.random() * words.length);
+    chosenWord = words[randNum].toUpperCase();
+}
+
+function Start() { 
+    generateWord();
+    defaultImg();
+    resetCanvas();
+    mystery = chosenWord.replace(/[A-Z]/g, '_ ');
+    console.log(chosenWord)
+    tries = [];
+    failed = 0;
+    for(let i = 0; i < buttons.length; i++) {
+        document.getElementById(buttons[i]).disabled = false;
+        var kb = document.getElementById(buttons[i]);
+        kb.style.backgroundColor = "red";
+    }
+    document.getElementById("display1").value = mystery;
+    document.getElementById("display2").value = "";
+    document.getElementById("score").value = score;
+    document.getElementById("fails").value = failed;
+    if(chosenWord.length >= 10) {
+        showHint();
+    }
+}
+
+function showHint() {
+    var randNum = Math.floor(Math.random() * chosenWord.length);
+    var randLetter = chosenWord[randNum];
+    handleHint(randLetter);
+}
+
+function handleHint(str) {
+    tries.push(str);
+    var button = document.getElementById(str);
+    button.style.backgroundColor = "grey";
+    button.disabled = true;
+    guessedWord()
+}
+
+function defaultImg() {
+    var canvas = document.querySelector("canvas");
+    canvas.setAttribute("style", "display: none;");
+    var image = document.querySelector("img");
+    image.setAttribute("style", "display: block;")
+}
+
+function replaceImg() {
+    var image = document.querySelector("img");
+    image.setAttribute("style", "display: none;")
+    var can = document.querySelector("canvas");
+    can.setAttribute("style", "display: block;")
+}
+
+function guessedWord() {
+    wordStatus = chosenWord.split('').map(letter => (tries.indexOf(letter) >= 0 ? letter.toLowerCase() : "_ ")).join('');
+    document.getElementById('display1').value = wordStatus;
+}
+
+function updateMistakes() {
+    replaceImg();
+    loadCanvasOnError();
+    document.getElementById("score").value = score;
+    document.getElementById('fails').value = failed;
+}
+
+function updateScore() {
+    document.getElementById("score").value = score;
+}
+
+function checkIfGameWon() {
+    if (wordStatus === chosenWord.toLowerCase()) {
+        score++;
+        for(let i = 0; i < buttons.length; i++) {
+            document.getElementById(buttons[i]).disabled = true;
+            var kb = document.getElementById(buttons[i]);
+            kb.style.backgroundColor = "red";
+        }
+        updateScore();
+        document.getElementById("display2").value = "You won!";
+    }
+}
+
+function checkIfGameLost() {
+    if (failed === mistakes) {
+        score--;
+        for(let i = 0; i < buttons.length; i++) {
+            document.getElementById(buttons[i]).disabled = true;
+            var kb = document.getElementById(buttons[i]);
+            kb.style.backgroundColor = "red";
+        }
+        updateScore();
+        document.getElementById('display1').value = chosenWord.toLowerCase();
+        document.getElementById("display2").value = "Game over, you have lost!";
+    }
+}
+
+function resetCanvas() {
+    var canvas = document.querySelector("canvas");
+    var context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function loadCanvasOnError () {
+    var hangman = document.querySelector("canvas");
+    var h = hangman.getContext('2d');
+
+    switch (failed) {
+        case 1:
+            h.beginPath();
+            h.moveTo(75, 120);
+            h.lineTo(170, 120);
+            h.moveTo(100, 60);
+            h.lineTo(130, 30);
+            h.moveTo(100, 120);
+            h.lineTo(100, 30);
+            h.lineTo(180, 30);
+            h.stroke();
+            break;
+        case 2:
+            h.beginPath();
+            h.moveTo(150, 30)
+            h.lineTo(150, 90);
+            h.arc(140, 50, 10, 0, Math.PI * 2, false);
+            h.stroke();
+            break;
+        case 3:
+            h.beginPath();
+            h.moveTo(150, 65); 
+            h.lineTo(135, 75); 
+            h.stroke();
+            break;
+        case 4:
+            h.moveTo(150, 65); 
+            h.lineTo(165, 75);
+            h.stroke();
+            break;
+        case 5:
+            h.beginPath();
+            h.moveTo(150, 90); 
+            h.lineTo(145, 110); 
+            h.stroke();
+            break;
+        case 6:
+            h.beginPath();
+            h.moveTo(150, 90); 
+            h.lineTo(155, 110); 
+            h.moveTo(135, 47.5); 
+            h.lineTo(137.5, 50); 
+            h.moveTo(135, 50); 
+            h.lineTo(137.5, 47.5); 
+            h.moveTo(142.5, 47.5); 
+            h.lineTo(145, 50); 
+            h.moveTo(142.5, 50); 
+            h.lineTo(145, 47.5);
+            h.moveTo(142.5, 56.5); 
+            h.arc(140, 56.5, 3, 0, 1 * Math.PI, true); 
+            h.stroke();
+
+    }
+}
+   </script>
+</head>
+
+<body>
+    <h1>Hangman Game!</h1>
+    <header id="just"></header>
+    <canvas id="canv" style="display: none;"></canvas>
+    <img src="Hangman.JPEG" width="400" height="200">
+        <table border="4" width="700" class="table">
+            <tbody>
+              <tr>
+                <td class="text" style="text-align: right;" colspan="4">
+                    Score : <input type="text" id="score" readonly="true" size="3" value="0"><br><br> Fails (6) : <input type="text" id="fails" readonly="true" size="3" value="0"></td>
+                <td colspan="7">
+                    <center>
+                        <input id="display1" readonly=true value="---Hangman---">
+                        </input>
+                        <br><br>
+                        <input id="display2" readonly=true value="Click START to get a word.">
+                        </input>
+                    </center>
+                </td>
+                <td colspan="2" id="justbutton">
+                    <center>
+                        <input type="button" value="Start" class="button" onclick="Start()">
+                    </center>
+                </td>
+              </tr>
+              <tr>
+                    <td>
+                        <button disabled="true" id="A" onclick="handleGuess('A')">A</button>
+                    </td>
+                    <td>
+                        <button disabled="true" id="B" onclick="handleGuess('B')">B</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="C" onclick="handleGuess('C')">C</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="D" onclick="handleGuess('D')">D</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="E" onclick="handleGuess('E')">E</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="F" onclick="handleGuess('F')">F</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="G" onclick="handleGuess('G')">G</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="H" onclick="handleGuess('H')">H</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="I" onclick="handleGuess('I')">I</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="J" onclick="handleGuess('J')">J</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="K" onclick="handleGuess('K')">K</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="L" onclick="handleGuess('L')">L</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="M" onclick="handleGuess('M')">M</button>
+                        </td>
+              </tr>
+              <tr>
+                    <td>
+                        <button disabled="true" id="N" onclick="handleGuess('N')">N</button>
+                    </td>
+                    <td>
+                        <button disabled="true" id="O" onclick="handleGuess('O')">O</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="P" onclick="handleGuess('P')">P</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="Q" onclick="handleGuess('Q')">Q</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="R" onclick="handleGuess('R')">R</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="S" onclick="handleGuess('S')">S</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="T" onclick="handleGuess('T')">T</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="U" onclick="handleGuess('U')">U</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="V" onclick="handleGuess('V')">V</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="W" onclick="handleGuess('W')">W</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="X" onclick="handleGuess('X')">X</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="Y" onclick="handleGuess('Y')">Y</button>
+                        </td>
+                    <td>
+                        <button disabled="true" id="Z" onclick="handleGuess('Z')">Z</button>
+                        </td>
+              </tr>
+            </tbody>
+          </table>
+    
+</body>
+</html>
